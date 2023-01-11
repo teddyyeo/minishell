@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include "../minishell.h"
 
 void env(char **envp)
 {
@@ -10,10 +10,4 @@ void env(char **envp)
 		printf("%s\n", envp[i]);
 		i++;
 	}
-}
-
-int main(int argc, char **argv, char **envp)
-{
-	env(envp);
-	return (0);
 }
