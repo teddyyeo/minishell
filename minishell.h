@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jijeong <jijeong@student.42seoul.kr>       +#+  +:+       +#+        */
+/*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/26 15:27:44 by jijeong           #+#    #+#             */
-/*   Updated: 2023/01/02 10:42:21 by jijeong          ###   ########.fr       */
+/*   Updated: 2023/01/11 21:35:55 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,5 +89,7 @@ char	*ms_get_key(char *str);
 int		ms_free_token(t_mslist *l);
 // ms_error.c
 int		ms_error_msg(char *s, int exit_code);
+
+void	free_double_ptr(char **arr);
 
 #endif

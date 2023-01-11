@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ms_parse_cmdline.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jijeong <jijeong@student.42seoul.kr>       +#+  +:+       +#+        */
+/*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/02 14:22:03 by jijeong           #+#    #+#             */
-/*   Updated: 2023/01/02 14:22:05 by jijeong          ###   ########.fr       */
+/*   Updated: 2023/01/11 18:43:13 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,19 +23,19 @@ int	ms_parse(t_mslist *l, char *cmd)
 
 int	ms_tokenize(t_mslist *l, char *cmd)
 {
-	size_t	i;
+	size_t	idx;
 	size_t	j;
 
-	i = 0;
+	idx = 0;
 	j = 0;
-	while (cmd[i])
+	while (cmd[idx])
 	{
-		if (cmd[i] == ' ')
-			i++;
-		else if (ms_ismeta(cmd[i]))
-			ms_get_meta_token(l, &i, &j, cmd);
+		if (cmd[idx] == ' ')
+			idx++;
+		else if (ms_ismeta(cmd[idx]))//redirection and pipe
+			ms_get_meta_token(l, &idx, &j, cmd);
 		else
-			ms_get_word_token(l, &i, &j, cmd);
+			ms_get_word_token(l, &idx, &j, cmd);
 	}
 	return (0);
 }

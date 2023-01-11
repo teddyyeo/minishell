@@ -1,26 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   env.c                                              :+:      :+:    :+:   */
+/*   echo.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/01/11 16:08:22 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/11 21:37:01 by tayeo            ###   ########.fr       */
+/*   Created: 2023/01/11 19:57:15 by tayeo             #+#    #+#             */
+/*   Updated: 2023/01/11 21:36:10 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void	env(char **envp)
+void	echo(char **argv)
 {
 	int	i;
 
 	i = 0;
-	while (envp[i] != NULL)
+	if (ft_strncmp(argv[0], "-n", 2) == 0)
+		i++;
+	while (argv[i] != 0)
 	{
-		if (ft_strchr(envp[i], '=') != NULL)
-			printf("%s\n", envp[i]);
+		printf("%s", argv[i]);
 		i++;
 	}
+	if (ft_strncmp(argv[0], "-n", 2) != 0)
+		printf("\n");
 }

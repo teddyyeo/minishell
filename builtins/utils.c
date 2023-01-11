@@ -1,26 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   env.c                                              :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/01/11 16:08:22 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/11 21:37:01 by tayeo            ###   ########.fr       */
+/*   Created: 2023/01/11 21:30:25 by tayeo             #+#    #+#             */
+/*   Updated: 2023/01/11 21:35:37 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void	env(char **envp)
+void	free_double_ptr(char **arr)
 {
 	int	i;
 
+	if (!arr)
+		return ;
 	i = 0;
-	while (envp[i] != NULL)
+	while (arr[i] != '\0')
 	{
-		if (ft_strchr(envp[i], '=') != NULL)
-			printf("%s\n", envp[i]);
+		free(arr[i]);
 		i++;
 	}
+	free(arr);
 }
