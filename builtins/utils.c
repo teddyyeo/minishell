@@ -6,7 +6,7 @@
 /*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/11 21:30:25 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/14 15:24:21 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/14 19:55:53 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,12 +61,35 @@ int	check_name(char *str)
 	i = 0;
 	if (ft_isdigit(str[0]))
 		return (0);
-	while (str[i] != 0)
+	while (str[i])
 	{
-		if (!ft_isalnum(str[i]) || str[i] != '_')
+		if (!ft_isalnum(str[i]) && str[i] != '_')
+		{
 			return (0);
+		}
 		i++;
 	}
 	return (1);
 }
 
+char	**add_env(char **envp, char *str)
+{
+	char	**dupe;
+	int		i;
+
+	i = 0;
+	while (envp[i])
+		i++;
+	dupe = (char **)malloc(sizeof(char *) * (i + 2));
+	if (!dupe)
+		return (NULL);
+	dupe[i + 1] = 0;
+	dupe[i] = ft_strdup(str);
+	while (i > 0)
+	{
+		i--;
+		dupe[i] = ft_strdup(envp[i]);
+	}
+	//free_double_ptr(envp);
+	return (dupe);
+}

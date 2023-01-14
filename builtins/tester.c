@@ -2,9 +2,11 @@
 
 int main(int argc, char **argv, char **envp)
 {
+	t_mslist list;
+
+	list.env.envp = envp;
 	printf("arg num: %d\n", argc);
-	export(&argv[1], envp);
+	export(&list, &argv[1]);
 	printf("\n\n\n\n\n");
-	env(envp);
-	pwd();
+	export(&list, NULL);
 }
