@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tayeo <tayeo@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/11 19:56:34 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/11 21:36:41 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/14 14:49:17 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void	print_env(char **envp)
 	}
 }
 
-void	sort_env(char **envp)
+void	sort_print_env(char **envp)
 {
 	char	**dup;
 	char	*tmp;
@@ -73,10 +73,25 @@ void	sort_env(char **envp)
 
 void export(char **argv, char **envp)
 {
-	if (argv == 0)
-		sort_env(envp);
+	int	i;
+
+	i = 0;
+	if (argv == NULL)
+		sort_print_env(envp);
+
+
 }
 
+/*
+** 1. if there are no arguments, print sorted env with "declare -x"
+** 2. if there are arguments, check if they are valid variable names
+** 3. if valid -> check if the variable name exists already -> if it does replace definiton, else add to the env list
+** 4. if not valid -> say so
+*/
+char *seperate_var_name(char *str)
+{
+
+}
 int	check_var_name(char *str)
 {
 	int	i;
@@ -91,4 +106,9 @@ int	check_var_name(char *str)
 		i++;
 	}
 	return (1);
+}
+
+int main(int argc, char **argv, char **envp)
+{
+	export(NULL, envp);
 }
