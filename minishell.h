@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tayeo <tayeo@student.42seoul.kr>           +#+  +:+       +#+        */
+/*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/26 15:27:44 by jijeong           #+#    #+#             */
-/*   Updated: 2023/01/14 14:32:10 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/14 17:00:31 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,29 @@ int		ms_free_token(t_mslist *l);
 // ms_error.c
 int		ms_error_msg(char *s, int exit_code);
 
+/*
+** builtins/export.c
+*/
+void export(char **argv, char **envp);
+char *get_name(char *str);
+int	check_name(char *str);
+char	**dupe_env(char **envp);
+void	sort_print_env(char **envp);
+
+/*
+** builtins/utils.c
+*/
 void	free_double_ptr(char **arr);
 int		ft_strcmp(const char *s1, const char *s2);
 #endif
+
+
+/*
+** env.c
+*/
+void	env(char **envp);
+
+/*
+** builtin/pwd.c
+*/
+void	pwd(void);
