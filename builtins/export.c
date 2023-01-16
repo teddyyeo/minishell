@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tayeo <tayeo@student.42seoul.kr>           +#+  +:+       +#+        */
+/*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/11 19:56:34 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/16 06:58:47 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/16 20:16:53 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,76 +40,76 @@ void	sort_print_env(char **envp)
 	free_double_ptr(dup);
 }
 
-
-void export(t_mslist *list, char **args)
-{
-	int	i;
-	int	flag;
-	char	*name;
-
-	i = 0;
-	flag = 0;
-	if (args == NULL || args[0] == NULL)
-	{
-		sort_print_env(list->env.envp);
-		return ;
-	}
-	while (args[i] != NULL)
-	{
-		printf("args: %s\n", args[i]);
-		name = get_name(args[i], &flag);
-		if (name == NULL)
-			exit(1);
-		if (check_name(name) == 0)
-			printf("minishell: export: \'%s\': not a valid identifier\n", name);
-		else
-		{
-			check_exist(list, args[i]);
-		}
-		if (ft_strchr(args[i], '=') != 0)
-			free(name);
-		i++;
-	}
-}
-
 /*
 ** 1. if there are no arguments, print sorted env with "declare -x"
 ** 2. if there are arguments, check if they are valid variable names
-** 3. if valid -> check if the variable name exists already -> if it does replace definiton, else add to the env list
+** 3. if valid -> check if it exists already -> if it does replace definiton,
+**     else add to the env list
 ** 4. if not valid -> say so
 */
-
-void	check_exist(t_mslist *list, char *str)
+int	export(t_mslist *list, char **args)
 {
-	int	i;
-	int	flag;
+	int		i;
+	int		flag;
 	char	*name;
-	char	*env_var;
+
 	i = 0;
 	flag = 0;
-	name = get_name(str, &flag);
-	char **env = list->env.envp;
-	while (list->env.envp[i])
+	if (args == (void *)0 || args[0] == (void *)0)
 	{
-		env_var = get_name(list->env.envp[i], &flag);
-		if (ft_strcmp(env_var, name) == 0)
-		{
-				puts("match");
-			printf("%s\n", ft_strchr(str, '='));
-			if (ft_strchr(str, '=') != 0)
-			{
-				puts("no definition");
-				list->env.envp[i] = str;
-				free(name);
-				return ;
-			}
-		}
+		sort_print_env(list->env.envp);
+		return (1);
+	}
+	while (args[i] != (void *)0)
+	{
+		name = get_name(args[i], &flag);
+		if (name == (void *)0)
+			exit(0);
+		if (check_name(name) == 0)
+			printf("minishell: export: \'%s\': not a valid identifier\n", name);
+		else
+			check_exist_add(list, args[i]);
+		free_ptr(name, &flag);
 		i++;
 	}
-	list->env.envp = add_env(env, str);
+	return (1);
+}
+
+void	check_exist_add(t_mslist *list, char *str)
+{
+	int		i;
+	int		flag[2];
+	char	*name;
+	char	*env_var;
+
+	i = 0;
+	name = get_name(str, &flag[0]);
+	while (list->env.envp[i])
+	{
+		env_var = get_name(list->env.envp[i], &flag[1]);
+		if (ft_strcmp(env_var, name) == 0)
+		{
+			update(list, str, i);
+			free_ptr(env_var, &flag[1]);
+			free_ptr(name, &flag[0]);
+			return ;
+		}
+		free_ptr(env_var, &flag[1]);
+		i++;
+	}
+	list->env.envp = add_env(list->env.envp, str);
+	free_ptr(name, &flag[0]);
 	return ;
 }
 
+void	update(t_mslist *list, char *str, int i)
+{
+	if (ft_strchr(str, '=') != (void *)0)
+	{
+		free(list->env.envp[i]);
+		list->env.envp[i] = ft_strdup(str);
+	}
+}
 /*
 ** 1. if name matches the envp
 ** 	1.1. if str has '=' then replace envp[i] with str

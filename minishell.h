@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tayeo <tayeo@student.42seoul.kr>           +#+  +:+       +#+        */
+/*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/26 15:27:44 by jijeong           #+#    #+#             */
-/*   Updated: 2023/01/16 06:25:35 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/17 00:14:47 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,9 +93,10 @@ int		ms_error_msg(char *s, int exit_code);
 /*
 ** builtins/export.c
 */
-void	export(t_mslist *list, char **args);
+int	export(t_mslist *list, char **args);
 void	sort_print_env(char **envp);
-void	check_exist(t_mslist *list, char *str);
+void	check_exist_add(t_mslist *list, char *str);
+void	update(t_mslist *list, char *str, int i);
 
 /*
 ** builtins/export_utils.c
@@ -120,7 +121,15 @@ void	pwd(void);
 ** builtins/utils.c
 */
 char	**dupe_env(char **envp);
+int		get_env_num(char **envp);
 void	free_double_ptr(char **arr);
 int		ft_strcmp(const char *s1, const char *s2);
+void	free_ptr(char *ptr, int *flag);
 
+/*
+** builtins/unset.c
+*/
+int		unset(t_mslist *list, char **args);
+int		check_match(char **envp, char *str);
+char	**remove_env(t_mslist *list, char *var_name);
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   export_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tayeo <tayeo@student.42seoul.kr>           +#+  +:+       +#+        */
+/*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/16 06:18:43 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/16 06:54:25 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/16 20:17:16 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,13 @@ void	print_env(char **envp)
 ** if flag is set to 1 -> returned string must be freed
 ** else -> do not free
 */
-char *get_name(char *str, int *flag)
+char	*get_name(char *str, int *flag)
 {
 	char	*var_name;
 	char	*delimiter;
 
 	delimiter = ft_strchr(str, '=');
-	if (delimiter != NULL)
+	if (delimiter != (void *)0)
 	{
 		*delimiter = 0;
 		var_name = ft_strdup(str);
@@ -42,6 +42,7 @@ char *get_name(char *str, int *flag)
 		*flag = 1;
 		return (var_name);
 	}
+	*flag = 0;
 	return (str);
 }
 
@@ -69,11 +70,12 @@ char	**add_env(char **envp, char *str)
 	int		i;
 
 	i = 0;
+	print_env(envp);
 	while (envp[i])
 		i++;
 	dupe = (char **)malloc(sizeof(char *) * (i + 2));
 	if (!dupe)
-		return (NULL);
+		return ((void *)0);
 	dupe[i + 1] = 0;
 	dupe[i] = ft_strdup(str);
 	while (i > 0)

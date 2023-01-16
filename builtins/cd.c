@@ -6,124 +6,75 @@
 /*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 16:54:02 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/14 16:54:18 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/17 06:03:30 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
 
-static char	*add_home_path(char *path)
-{
-	char		*tmp;
-	char		*tmpp;
-
-	if (!ft_strncmp(path, "~/", 2))
-	{
-		if ((tmp = get_env("HOME")))
-		{
-			tmpp = ft_substr(path, 1, ft_strlen(path));
-			free(path);
-			path = ft_strjoin(tmp, tmpp);
-			free(tmpp);
-			free(tmp);
-			return (path);
-		}
-	}
-	return (path);
-}
-
-static int	change(char *path, int home)
+static void	change_dir_to_path(char *path, char **envp)
 {
 	char	*pwd;
+	char	*error_msg;
+	char	buffer[2048];
 
-	pwd = getcwd(NULL, 0);
-	if (!chdir(path))
+	pwd = getcwd(buffer, 2048);
+	hashmap_insert("OLDPWD", pwd, envp);
+	if (chdir(path) != 0 && ft_strchr(path, '>') == NULL)
 	{
-		if (pwd)
-		{
-			set_env("OLDPWD", pwd);
-			free(pwd);
-		}
-		if ((pwd = getcwd(NULL, 0)))
-		{
-			set_env("PWD", pwd);
-			free(pwd);
-		}
-		if (home)
-			free(path);
-		return (1);
+		perror("minishell: cd error")
+		return ;
 	}
-	free(pwd);
-	return (0);
+	pwd = getcwd(buffer, 2048);
+	hashmap_insert("PWD", pwd,envp);
 }
 
-int			set_directory(char *path, int home)
+static void	change_dir_to_oldpwd(char *path)
 {
-	struct stat	st;
+	ft_printf("%s\n", path);
+	change_dir_to_path(path);
+}
 
-	if (change(path, home))
-		return (1);
-	ft_putstr_fd("minishell: cd: ", 2);
-	ft_putstr_fd(path, 2);
-	g_status = 1;
-	if (stat(path, &st) == -1)
+static void	change_dir_to_home(void)
+{
+	char	*path;
+
+	path = ft_strdup(hashmap_search(g_minishell.env, "HOME"));
+	if (path == NULL)
 	{
-		ft_putstr_fd(": No such file or directory", 2);
-		g_status = 127;
-	}
-	else if (!(st.st_mode & S_IXUSR))
-		ft_putstr_fd(": Permission denied", 2);
-	else
-		ft_putstr_fd(": Not a directory", 2);
-	ft_putchar_fd('\n', 2);
-	if (home)
+		error_message("cd", NO_HOME, 1);
 		free(path);
-	return (1);
+		return ;
+	}
+	change_dir_to_path(path);
+	free(path);
 }
 
-int			s_path(char **args)
+void	cd(char	*path)
 {
-	char *tmp;
+	char	*current_path;
 
-	if (ft_strequ(args[1], "-"))
+	//error_status = 0;
+	if ((!path) || ft_strcmp(path, "~") == 0)
 	{
-		if ((tmp = get_env("OLDPWD")))
-		{
-			set_directory(tmp, 0);
-			free(tmp);
-		}
-		if ((tmp = get_env("PWD")))
-		{
-			ft_putstr_fd(tmp, 1);
-			free(tmp);
-			ft_putchar_fd('\n', 1);
-		}
-		return (1);
+		change_dir_to_home();
+		return ;
 	}
-	return (set_directory(args[1], 0));
-}
-
-int			run_cd(char **args)
-{
-	char	*home;
-
-	g_status = 0;
-	home = NULL;
-	if (args && args[1] && args[2])
+	else if (ft_strcmp(path, "-") == 0)
 	{
-		ft_putstr_fd("minishell: cd: too many arguments\n", 2);
-		return (1);
-	}
-	if (!args[1] || ft_strequ(args[1], "~") || ft_strequ(args[1], "--"))
-	{
-		if (!(home = get_env("HOME")))
+		current_path = ft_strdup(hashmap_search(g_minishell.env, "OLDPWD"));
+		if (current_path == NULL)
 		{
-			ft_putstr_fd("minishell: cd: HOME not set\n", 2);
-			return (1);
+			perror("minishell: no OLDPWD");
+			return ;
 		}
-		return (set_directory(home, 1));
+		change_dir_to_oldpwd(current_path);
 	}
-	args[1] = add_home_path(args[1]);
-	return (s_path(args));
+	else
+	{
+		current_path = ft_strdup(path);
+		change_dir_to_path(current_path);
+	}
+	free(current_path);
 }

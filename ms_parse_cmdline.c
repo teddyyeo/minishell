@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ms_parse_cmdline.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
+/*   By: jijeong <jijeong@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/02 14:22:03 by jijeong           #+#    #+#             */
-/*   Updated: 2023/01/11 18:43:13 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/02 14:22:05 by jijeong          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,25 +17,29 @@ int	ms_parse(t_mslist *l, char *cmd)
 	ms_tokenize(l, cmd);
 	if (ms_set_token_code(l->token))
 		return (1);
-	ms_token_interpreter(l->token);
+	if (ms_check_token_code(l->token))
+		return (1);
+//	if (ms_make_here_doc(l))
+//		return (1);
+	ms_set_command_struct(l);
 	return (0);
 }
 
 int	ms_tokenize(t_mslist *l, char *cmd)
 {
-	size_t	idx;
+	size_t	i;
 	size_t	j;
 
-	idx = 0;
+	i = 0;
 	j = 0;
-	while (cmd[idx])
+	while (cmd[i])
 	{
-		if (cmd[idx] == ' ')
-			idx++;
-		else if (ms_ismeta(cmd[idx]))//redirection and pipe
-			ms_get_meta_token(l, &idx, &j, cmd);
+		if (cmd[i] == ' ')
+			i++;
+		else if (ms_ismeta(cmd[i]))
+			ms_get_meta_token(l, &i, &j, cmd);
 		else
-			ms_get_word_token(l, &idx, &j, cmd);
+			ms_get_word_token(l, &i, &j, cmd);
 	}
 	return (0);
 }
@@ -126,20 +130,52 @@ int	ms_set_token_code(t_token *token)
 	pre_code = 0;
 	while (token)
 	{
+		if (ms_check_redi_token_code(token, pre_code))
+			return (1);
 		if (pre_code == 1 || pre_code == 2 || pre_code == 3 || pre_code == 4)
 		{
-			if (ms_ismeta(token->token[0]))
-			{
-				printf("minishell: syntax error near unexpected");
-				printf(" token '%s'\n", token->token);
-				return (1);
-			}
-			token->code = 8;
+			token->code = 9;
+			if (pre_code == 1)
+				token->code = 8;
 		}
 		else if (ms_ismeta(token->token[0]))
 			ms_set_meta_token_code(token);
 		else
-			token->code = 9;
+			token->code = 10;
+		pre_code = token->code;
+		token = token->next;
+	}
+	return (0);
+}
+
+int	ms_check_redi_token_code(t_token *token, int pre_code)
+{
+	if (0 < pre_code && pre_code < 5)
+	{
+		if (!(token) || (token && ms_ismeta(token->token[0])))
+		{
+			printf("minishell: syntax error near unexpected");
+			printf(" token '%s'\n", token->token);
+			return (1);
+		}
+	}
+	return (0);
+}
+
+int	ms_check_token_code(t_token *token)
+{
+	int	pre_code;
+
+	pre_code = 0;
+	while (token)
+	{
+		if ((pre_code == 0 || (5 <= pre_code && pre_code <= 7)) && \
+			(5 <= token->code && token->code <= 7))
+		{
+			printf("minishell: syntax error near unexpected");
+			printf(" token '%s'\n", token->token);
+			return (1);
+		}
 		pre_code = token->code;
 		token = token->next;
 	}
@@ -155,10 +191,7 @@ int	ms_set_meta_token_code(t_token *token)
 	if (!ft_strncmp(token->token, "|", 2))
 		token->code = 5;
 	if (!ft_strncmp(token->token, "&", 2))
-	{
-		printf("minishell : i can not handle &\n");
-		exit(1);
-	}
+		token->code = 10;
 	if (!ft_strncmp(token->token, "<<", 2))
 		token->code = 1;
 	if (!ft_strncmp(token->token, ">>", 2))
@@ -170,58 +203,148 @@ int	ms_set_meta_token_code(t_token *token)
 	return (0);
 }
 
-int	ms_token_interpreter(t_token *token)
+int	ms_set_command_struct(t_mslist *l)
 {
-	while (token)
+	ms_set_command_list_struct(l);
+	ms_set_command_set_struct(l);
+	ms_set_redi_cmd_sets(l, 0, 0);
+	return (0);
+}
+
+int	ms_set_command_list_struct(t_mslist *l)
+{
+	int		i;
+	t_token	*tmp;
+
+	tmp = l->token;
+	i = 0;
+	while (tmp)
 	{
-		if (token->code == 8 || token->code == 9)
+		if (tmp->code == 6 || tmp->code == 7)
+			i += 1;
+		tmp = tmp->next;
+	}
+	l->cmds_list = (t_cmds_list *)malloc(sizeof(t_cmds_list) * (i + 1));
+	l->multicmd = i;
+	return (0);
+}
+
+int	ms_set_command_set_struct(t_mslist *l)
+{
+	int		i;
+	int		j;
+	t_token	*tmp;
+
+	tmp = l->token;
+	i = 0;
+	while (tmp)
+	{
+		j = 0;
+		while (tmp && !(tmp->code == 6 || tmp->code == 7))
 		{
-			if (token->code == 8)
-				ms_check_ambiguous_redirect(token->token);
-//			ms_parameter_expansion();
-//			ms_word_splitting();
-//			ms_globbing();
-//			ms_remove_quote_and_cat();
+			if (tmp->code == 5)
+				j += 1;
+			tmp = tmp->next;
 		}
-		token = token->next;
+		ms_set_command_list(l, i, j);
+		i += 1;
+		if (tmp && (tmp->code == 6 || tmp->code == 7))
+			tmp = tmp->next;
 	}
 	return (0);
 }
 
-int	ms_check_ambiguous_redirect(char *str)
+int	ms_set_command_list(t_mslist *l, int i, int j)
 {
-	size_t	i;
-	char	*key;
+	int	k;
 
-	i = 0;
-	while (str[i])
+	l->cmds_list[i].cmds_set = (t_cmds_set *)malloc(sizeof(t_cmds_set) \
+		* (j + 1));
+	k = 0;
+	while (k <= j)
 	{
-		if (str[i] == '\'' || str[i] == '\"')
-			ms_pass_quote(&i, str, str[i]);
-		if (str[i] == '$' && ms_isverable(str[i + 1]))
+		l->cmds_list[i].cmds_set[k].command = (void *)0;
+		l->cmds_list[i].cmds_set[k].redi = (void *)0;
+		l->cmds_list[i].cmds_set[k].id = k;
+		k += 1;
+	}
+	l->cmds_list[i].pipenum = j;
+	l->cmds_list[i].pid = (int *)malloc(sizeof(int) * (j * 2));
+	l->cmds_list[i].pipe = (pid_t *)malloc(sizeof(pid_t) * (j + 1));
+	return (0);
+}
+
+int	ms_set_redi_cmd_sets(t_mslist *l, int i, int j)
+{
+	t_token	*tmp;
+
+	tmp = l->token;
+	while (tmp)
+	{
+		if (tmp->code == 5)
+			j += 1;
+		else if (tmp->code == 6 || tmp->code == 7)
 		{
-			key = ms_get_key(&str[i + 1]);
-			printf("minishell: $%s: ambicuous redirect\n", key);
-			return (1);
+			i += 1;
+			j = 0;
 		}
-		i++;
+		else
+		{
+			if (tmp->code == 10)
+				ms_add_cmd_list(&(l->cmds_list[i].cmds_set[j]), tmp);
+			else
+			{
+				ms_add_redi_list(&(l->cmds_list[i].cmds_set[j]), tmp);
+				tmp = tmp->next;
+			}
+		}
+		tmp = tmp->next;
 	}
 	return (0);
 }
 
-int	ms_isverable(char c)
+int	ms_add_cmd_list(t_cmds_set *cmds, t_token *token)
 {
-	if (c == '_')
-		return (1);
-	return (ft_isalpha((int)c));
+	t_cmd	*tmp;
+
+	tmp = cmds->command;
+	if (tmp == (void *)0)
+	{
+		cmds->command = (t_cmd *)malloc(sizeof(t_cmd));
+		cmds->command->next = (void *)0;
+		cmds->command->cmd = ft_strdup(token->token);
+	}
+	else
+	{
+		while (tmp->next != (void *)0)
+			tmp = tmp->next;
+		tmp->next = (t_cmd *)malloc(sizeof(t_cmd));
+		tmp->next->next = (void *)0;
+		tmp->next->cmd = ft_strdup(token->token);
+	}
+	return (0);
 }
 
-char	*ms_get_key(char *str)
+int	ms_add_redi_list(t_cmds_set *cmds, t_token *token)
 {
-	int	i;
+	t_redi	*tmp;
 
-	i = 0;
-	while(ms_isverable(str[i]))
-		i++;
-	return (ft_substr(str, 0, i));
+	tmp = cmds->redi;
+	if (tmp == (void *)0)
+	{
+		cmds->redi = (t_redi *)malloc(sizeof(t_redi));
+		cmds->redi->next = (void *)0;
+		cmds->redi->redi_code = token->code;
+		cmds->redi->filename = ft_strdup(token->next->token);
+	}
+	else
+	{
+		while (tmp->next != (void *)0)
+			tmp = tmp->next;
+		tmp->next = (t_redi *)malloc(sizeof(t_redi));
+		tmp->next->next = (void *)0;
+		tmp->next->redi_code = token->code;
+		tmp->next->filename = ft_strdup(token->next->token);
+	}
+	return (0);
 }

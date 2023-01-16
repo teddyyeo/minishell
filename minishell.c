@@ -12,6 +12,51 @@
 
 #include "minishell.h"
 
+static int	tester(t_mslist *l, char *cmdline)
+{
+	t_token		*token;
+	static char	*codename[11] = {"nothing","heredoc","file in","file out","out cat","pipeline","or list","and list","delimeter","filename","word"};
+	
+	token = l->token;
+	printf("%s\ntoken list\n", cmdline);
+	printf("token_len : %d\n", l->token_len);
+	for (int i = 0; i < l->token_len ; i++)
+	{
+		printf("%2d : %2d [%10s]\t%s\n", i + 1, token->code, codename[token->code], token->token);
+		token = token->next;
+	}
+	printf("command list\n");
+	if (l->cmds_list != (void *)0)
+	{
+		printf("multicmd : %d\n", l->multicmd);
+		for (int i = 0; i <= l->multicmd ; i++)
+		{
+			printf("%d : %d\n", i, l->cmds_list[i].pipenum);
+			for (int j = 0;j <= l->cmds_list[i].pipenum;j++)
+			{
+				printf("\t%d : %d\n", i, j);
+				for (t_redi *tmp = l->cmds_list[i].cmds_set[j].redi; tmp ;)
+				{
+					if (tmp)
+						printf("\t\t%d : %s\n",tmp->redi_code, tmp->filename);
+					if (tmp != (void *)0)
+						tmp = tmp->next;
+				}
+				printf("\t\t");
+				for (t_cmd *tmp = l->cmds_list[i].cmds_set[j].command; tmp ;)
+				{
+					if (tmp)
+						printf("%s ",tmp->cmd);
+					if (tmp != (void *)0)
+						tmp = tmp->next;
+				}
+				printf("\n");
+			}
+		}
+	}
+	return (0);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	char		*commandline;
@@ -20,51 +65,19 @@ int	main(int argc, char **argv, char **envp)
 	if (argc != 1)
 		if (printf("minishell: minishell: too many arguments\n"))
 			exit(1);
-	printf("%d %s %s\n",argc, argv[0], envp[0]);
 	l.token = (void *)0;
-//	ms_set_data(&l, argv, envp);
+	ms_set_data(&l, argv, envp);
 	while (1)
 	{
 		commandline = readline("minishell> ");
 		if (!commandline)
 			break ;
-		if (commandline[0] == '\0')
-			printf("hello world\n\n");
 		add_history(commandline);
 		if (!ms_parse(&l, commandline))
-		{
-//			ms_set_command_struct(&l);
-//			ms_execute(&l);
-		}
+			ms_execute(&l, 0, 0);
+		tester(&l, commandline);
 		free(commandline);
-//		ms_free_data(&l, commandline);
-		t_token *token = l.token;
-		char	*codename[10] = {"nothing","heredoc","file in","file out","out cat","pipeline","or list","and list","filename","word"};
-		printf("token_len : %d\n", l.token_len);
-		for (int i = 0; i < l.token_len ; i++)
-		{
-			printf("%2d : %d [%10s]\t%s\n", i + 1, token->code, codename[token->code], token->token);
-			token = token->next;
-		}
-		ms_free_token(&l);
-	}
-	return (0);
-}
-
-int	ms_free_token(t_mslist *l)
-{
-	t_token	*current;
-	t_token	*temp;
-
-	current = l->token;
-	l->token = (void *)0;
-	l->token_len = 0;
-	while (current)
-	{
-		free(current->token);
-		temp = current;
-		current = current->next;
-		free(temp);
+		ms_free_data(&l);
 	}
 	return (0);
 }
