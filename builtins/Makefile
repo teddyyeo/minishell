@@ -1,6 +1,6 @@
 NAME = builtin_tester
 
-SRC = env.c tester.c export.c utils.c pwd.c
+SRC = env.c tester.c export.c utils.c pwd.c export_utils.c
 
 FLAG = -Werror -Wall -Wextra
 

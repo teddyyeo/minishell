@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tayeo <tayeo@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/26 15:27:44 by jijeong           #+#    #+#             */
-/*   Updated: 2023/01/15 06:38:18 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/16 06:25:35 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,22 +93,21 @@ int		ms_error_msg(char *s, int exit_code);
 /*
 ** builtins/export.c
 */
-void export(t_mslist *list, char **args);
-char	**dupe_env(char **envp);
+void	export(t_mslist *list, char **args);
 void	sort_print_env(char **envp);
-int	check_exist(t_mslist *list, char *str);
-void	print_env(char **envp);
-/*
-** builtins/utils.c
-*/
-void	free_double_ptr(char **arr);
-int		ft_strcmp(const char *s1, const char *s2);
-char	**add_env(char **envp, char *str);
-char *get_name(char *str);
-int	check_name(char *str);
+void	check_exist(t_mslist *list, char *str);
 
 /*
-** env.c
+** builtins/export_utils.c
+*/
+void	print_env(char **envp);
+char	**add_env(char **envp, char *str);
+char *get_name(char *str, int *flag);
+int	check_name(char *str);
+
+
+/*
+** builtins/env.c
 */
 void	env(char **envp);
 
@@ -116,5 +115,12 @@ void	env(char **envp);
 ** builtin/pwd.c
 */
 void	pwd(void);
+
+/*
+** builtins/utils.c
+*/
+char	**dupe_env(char **envp);
+void	free_double_ptr(char **arr);
+int		ft_strcmp(const char *s1, const char *s2);
 
 #endif

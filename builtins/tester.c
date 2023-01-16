@@ -9,4 +9,7 @@ int main(int argc, char **argv, char **envp)
 	export(&list, &argv[1]);
 	printf("\n\n\n\n\n");
 	export(&list, NULL);
+	printf("\n\n\n\n\n");
+	env(list.env.envp);
+
 }

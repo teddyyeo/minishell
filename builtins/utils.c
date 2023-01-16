@@ -3,22 +3,45 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tayeo <tayeo@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/11 21:30:25 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/14 19:55:53 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/16 06:42:57 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+char	**dupe_env(char **envp)
+{
+	char	**dupe;
+	int		i;
+
+	i = 0;
+	while (envp[i])
+		i++;
+	printf("number of envs: %d\n", i);
+	dupe = (char **)malloc(sizeof(char *) * (i + 1));
+	if (!dupe)
+		return (NULL);
+	dupe[i] = 0;
+	while (i > 0)
+	{
+		i--;
+		dupe[i] = ft_strdup(envp[i]);
+		if (dupe[i] == NULL)
+			return(NULL);
+	}
+	return (dupe);
+}
+
 void	free_double_ptr(char **arr)
 {
 	int	i;
 
+	i = 0;
 	if (!arr)
 		return ;
-	i = 0;
 	while (arr[i] != NULL)
 	{
 		free(arr[i]);
@@ -37,59 +60,12 @@ int	ft_strcmp(const char *s1, const char *s2)
 	return (*(unsigned char *)s1 - *(unsigned char *)s2);
 }
 
-char *get_name(char *str)
+void	free_ptr(char *ptr, int *flag)
 {
-	int		i;
-	int		len;
-	char	*var_name;
-
-	i = 0;
-	len = ft_strlen(str);
-	if (ft_strchr(str, '=') != NULL)
+	if (*flag == 1 && ptr != NULL)
 	{
-		*ft_strchr(str, '=') = 0;
-		var_name = ft_strdup(str);
-		return (var_name);
+		*flag = 0;
+		free(ptr);
+		ptr = NULL;
 	}
-	return (str);
-}
-
-int	check_name(char *str)
-{
-	int	i;
-
-	i = 0;
-	if (ft_isdigit(str[0]))
-		return (0);
-	while (str[i])
-	{
-		if (!ft_isalnum(str[i]) && str[i] != '_')
-		{
-			return (0);
-		}
-		i++;
-	}
-	return (1);
-}
-
-char	**add_env(char **envp, char *str)
-{
-	char	**dupe;
-	int		i;
-
-	i = 0;
-	while (envp[i])
-		i++;
-	dupe = (char **)malloc(sizeof(char *) * (i + 2));
-	if (!dupe)
-		return (NULL);
-	dupe[i + 1] = 0;
-	dupe[i] = ft_strdup(str);
-	while (i > 0)
-	{
-		i--;
-		dupe[i] = ft_strdup(envp[i]);
-	}
-	//free_double_ptr(envp);
-	return (dupe);
 }

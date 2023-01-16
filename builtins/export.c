@@ -3,47 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tayeo <tayeo@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/11 19:56:34 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/15 06:38:52 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/16 06:58:47 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-char	**dupe_env(char **envp)
-{
-	char	**dupe;
-	int		i;
-
-	i = 0;
-	while (envp[i])
-		i++;
-	printf("number of envs: %d\n", i);
-	dupe = (char **)malloc(sizeof(char *) * (i + 1));
-	if (!dupe)
-		return (NULL);
-	dupe[i] = 0;
-	while (i > 0)
-	{
-		i--;
-		dupe[i] = ft_strdup(envp[i]);
-	}
-	return (dupe);
-}
-
-void	print_env(char **envp)
-{
-	int	i;
-
-	i = 0;
-	while (envp[i])
-	{
-		printf("declare -x %s\n", envp[i]);
-		i++;
-	}
-}
 
 void	sort_print_env(char **envp)
 {
@@ -77,9 +44,11 @@ void	sort_print_env(char **envp)
 void export(t_mslist *list, char **args)
 {
 	int	i;
+	int	flag;
 	char	*name;
 
 	i = 0;
+	flag = 0;
 	if (args == NULL || args[0] == NULL)
 	{
 		sort_print_env(list->env.envp);
@@ -87,7 +56,8 @@ void export(t_mslist *list, char **args)
 	}
 	while (args[i] != NULL)
 	{
-		name = get_name(args[i]);
+		printf("args: %s\n", args[i]);
+		name = get_name(args[i], &flag);
 		if (name == NULL)
 			exit(1);
 		if (check_name(name) == 0)
@@ -109,32 +79,35 @@ void export(t_mslist *list, char **args)
 ** 4. if not valid -> say so
 */
 
-int	check_exist(t_mslist *list, char *str)
+void	check_exist(t_mslist *list, char *str)
 {
 	int	i;
-	char *name;
-
+	int	flag;
+	char	*name;
+	char	*env_var;
 	i = 0;
-	char **envp = list->env.envp;
-	name = get_name(str);
-	while (envp[i])
+	flag = 0;
+	name = get_name(str, &flag);
+	char **env = list->env.envp;
+	while (list->env.envp[i])
 	{
-		if (ft_strcmp(get_name(envp[i]), name) == 0)
+		env_var = get_name(list->env.envp[i], &flag);
+		if (ft_strcmp(env_var, name) == 0)
 		{
+				puts("match");
+			printf("%s\n", ft_strchr(str, '='));
 			if (ft_strchr(str, '=') != 0)
 			{
+				puts("no definition");
 				list->env.envp[i] = str;
-				return (0);
+				free(name);
+				return ;
 			}
-		}
-		else
-		{
-			list->env.envp = add_env(envp, str);
-			return (0);
 		}
 		i++;
 	}
-	return (1);
+	list->env.envp = add_env(env, str);
+	return ;
 }
 
 /*
