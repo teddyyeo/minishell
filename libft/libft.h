@@ -6,7 +6,7 @@
 /*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/20 06:32:48 by tayeo             #+#    #+#             */
-/*   Updated: 2022/10/15 21:47:32 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/17 22:44:18 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <stdarg.h>
 # include<unistd.h>
 
-int		ft_atoi(const char *s);
+long long		ft_atoi(const char *s);
 char	*ft_itoa(int n);
 void	ft_bzero(void *s, size_t n);
 void	*ft_calloc(size_t nmemb, size_t size);

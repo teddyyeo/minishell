@@ -6,7 +6,7 @@
 /*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/15 06:47:18 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/16 21:18:13 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/17 22:50:19 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,17 @@ int	unset(t_mslist *list, char **args)
 	int	i;
 
 	i = 0;
+	list->status = 0;
 	if (args == NULL)
-		return (1);
+		return (0);
 	while (args[i])
 	{
 		if (check_name(args[i]) == 0)
-			printf("Minishell: not a valid identifier \'%s\'\n", args[i]);
+		{
+			printf("minishell: unset: not a valid identifier \'%s\'\n",
+				args[i]);
+			list->status = 1;
+		}
 		else
 		{
 			if (check_match(list->env.envp, args[i]) == 1)
@@ -36,7 +41,7 @@ int	unset(t_mslist *list, char **args)
 		}
 		i++;
 	}
-	return (1);
+	return (list->status);
 }
 
 int	check_match(char **envp, char *str)
@@ -57,8 +62,10 @@ int	check_match(char **envp, char *str)
 			free_ptr(name, &flag[0]);
 			return (1);
 		}
+		free_ptr(env_var, &flag[1]);
 		i++;
 	}
+	free_ptr(name, &flag[0]);
 	return (0);
 }
 
@@ -66,19 +73,18 @@ char	**remove_env(t_mslist *list, char *var_name)
 {
 	char	**dupe;
 	int		idx[2];
-	int	env_num;
-	char *str;
-	int	flag;
+	int		env_num;
+	char	*str;
+	int		flag;
 
 	idx[0] = 0;
 	env_num = get_env_num(list->env.envp);
 	dupe = (char **)malloc(sizeof(char *) * (env_num));
-	if (!dupe)
-		return ((void *)0);
+	malloc_error_handler((void *)dupe);
 	dupe[env_num - 1] = 0;
 	while (idx[0] < env_num - 1)
 	{
-		str = get_name(list->env.envp[idx[0]], &flag);
+		str = get_name(list->env.envp[idx[1]], &flag);
 		if (ft_strcmp(var_name, str) != 0)
 		{
 			dupe[idx[0]] = ft_strdup(list->env.envp[idx[1]]);

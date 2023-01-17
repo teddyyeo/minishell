@@ -6,7 +6,7 @@
 /*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/16 06:18:43 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/16 20:17:16 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/17 22:50:50 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,19 @@
 
 void	print_env(char **envp)
 {
-	int	i;
+	int		i;
+	char	*name;
+	int		flag;
 
 	i = 0;
 	while (envp[i])
 	{
-		printf("declare -x %s\n", envp[i]);
+		name = get_name(envp[i], &flag);
+		if (ft_strchr(envp[i], '=') == 0)
+			printf("declare -x %s\n", envp[i]);
+		else
+			printf("declare -x %s=\"%s\"\n", name, (ft_strchr(envp[i], '=') + 1));
+		free_ptr(name, &flag);
 		i++;
 	}
 }
@@ -38,6 +45,7 @@ char	*get_name(char *str, int *flag)
 	{
 		*delimiter = 0;
 		var_name = ft_strdup(str);
+		malloc_error_handler(var_name);
 		*delimiter = '=';
 		*flag = 1;
 		return (var_name);
@@ -46,6 +54,9 @@ char	*get_name(char *str, int *flag)
 	return (str);
 }
 
+/*
+** if variable name is ok -> return 1
+*/
 int	check_name(char *str)
 {
 	int	i;
@@ -70,7 +81,6 @@ char	**add_env(char **envp, char *str)
 	int		i;
 
 	i = 0;
-	print_env(envp);
 	while (envp[i])
 		i++;
 	dupe = (char **)malloc(sizeof(char *) * (i + 2));
@@ -85,4 +95,15 @@ char	**add_env(char **envp, char *str)
 	}
 	free_double_ptr(envp);
 	return (dupe);
+}
+
+char	*get_defi(char *str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i] != '=')
+		i++;
+	i++;
+	return (&str[i]);
 }

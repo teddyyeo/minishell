@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jijeong <jijeong@student.42seoul.kr>       +#+  +:+       +#+         #
+#    By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/27 14:40:05 by jijeong           #+#    #+#              #
-#    Updated: 2023/01/15 22:30:08 by jijeong          ###   ########.fr        #
+#    Updated: 2023/01/17 23:17:53 by tayeo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,8 @@ SRCS =	minishell.c			\
 		ms_parse_cmdline.c	\
 		ms_set_data.c		\
 		ms_free_data.c		\
-		ms_execute_cmd.c
+		ms_execute_cmd.c \
+		signals/signals.c
 #		ms_here_doc.c
 SRCS_B =
 OBJS = $(SRCS:%.c=%.o)

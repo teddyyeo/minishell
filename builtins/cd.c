@@ -6,75 +6,84 @@
 /*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 16:54:02 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/17 06:03:30 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/17 22:15:02 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-
-static void	change_dir_to_path(char *path, char **envp)
+void	set_pwd(t_mslist *list, char *name)
 {
 	char	*pwd;
-	char	*error_msg;
-	char	buffer[2048];
+	char	*str;
 
-	pwd = getcwd(buffer, 2048);
-	hashmap_insert("OLDPWD", pwd, envp);
-	if (chdir(path) != 0 && ft_strchr(path, '>') == NULL)
+	pwd = getcwd(NULL, 0);
+	str = ft_strjoin(name, pwd);
+	free(pwd);
+	check_exist_add(list, str);
+	free(str);
+}
+
+void	change_dir_to_path(char *path, t_mslist *list)
+{
+	char	*msg;
+
+	set_pwd(list, "OLDPWD=");
+	if (chdir(path) != 0)
 	{
-		perror("minishell: cd error")
+		msg = ft_strjoin("minishell: cd: ", path);
+		perror(msg);
+		free(msg);
+		list->status = 1;
 		return ;
 	}
-	pwd = getcwd(buffer, 2048);
-	hashmap_insert("PWD", pwd,envp);
+	set_pwd(list, "PWD=");
 }
 
-static void	change_dir_to_oldpwd(char *path)
+void	change_dir_to_oldpwd(char *path, t_mslist *list)
 {
-	ft_printf("%s\n", path);
-	change_dir_to_path(path);
+	printf("%s\n", path);
+	change_dir_to_path(path, list);
 }
 
-static void	change_dir_to_home(void)
+void	change_dir_to_home(t_mslist *list)
 {
 	char	*path;
 
-	path = ft_strdup(hashmap_search(g_minishell.env, "HOME"));
-	if (path == NULL)
+	path = get_env_var(list->env.envp, "HOME");
+	if (path == (void *)0)
 	{
-		error_message("cd", NO_HOME, 1);
-		free(path);
+		printf("minishell: no home, ~ doesn't work in minishell\n");
+		list->status = 1;
 		return ;
 	}
-	change_dir_to_path(path);
+	change_dir_to_path(path, list);
 	free(path);
 }
 
-void	cd(char	*path)
+void	cd(t_mslist *list, char	*path)
 {
 	char	*current_path;
 
-	//error_status = 0;
 	if ((!path) || ft_strcmp(path, "~") == 0)
 	{
-		change_dir_to_home();
+		change_dir_to_home(list);
 		return ;
 	}
 	else if (ft_strcmp(path, "-") == 0)
 	{
-		current_path = ft_strdup(hashmap_search(g_minishell.env, "OLDPWD"));
-		if (current_path == NULL)
+		current_path = get_env_var(list->env.envp, "OLDPWD");
+		if (current_path == ((void *)0))
 		{
-			perror("minishell: no OLDPWD");
+			printf("minishell: cd: no OLDPWD");
+			list->status = 1;
 			return ;
 		}
-		change_dir_to_oldpwd(current_path);
+		change_dir_to_oldpwd(current_path, list);
 	}
 	else
 	{
-		current_path = ft_strdup(path);
-		change_dir_to_path(current_path);
+		current_path = path;
+		change_dir_to_path(current_path, list);
 	}
-	free(current_path);
 }

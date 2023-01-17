@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jijeong <jijeong@student.42seoul.kr>       +#+  +:+       +#+        */
+/*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/02 13:38:23 by jijeong           #+#    #+#             */
-/*   Updated: 2023/01/02 13:42:41 by jijeong          ###   ########.fr       */
+/*   Updated: 2023/01/17 23:16:12 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ static int	tester(t_mslist *l, char *cmdline)
 {
 	t_token		*token;
 	static char	*codename[11] = {"nothing","heredoc","file in","file out","out cat","pipeline","or list","and list","delimeter","filename","word"};
-	
+
 	token = l->token;
 	printf("%s\ntoken list\n", cmdline);
 	printf("token_len : %d\n", l->token_len);
@@ -62,6 +62,7 @@ int	main(int argc, char **argv, char **envp)
 	char		*commandline;
 	t_mslist	l;
 
+	signaling();
 	if (argc != 1)
 		if (printf("minishell: minishell: too many arguments\n"))
 			exit(1);

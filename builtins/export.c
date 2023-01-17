@@ -6,7 +6,7 @@
 /*   By: tayeo <tayeo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/11 19:56:34 by tayeo             #+#    #+#             */
-/*   Updated: 2023/01/16 20:16:53 by tayeo            ###   ########.fr       */
+/*   Updated: 2023/01/17 22:47:43 by tayeo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void	sort_print_env(char **envp)
 **     else add to the env list
 ** 4. if not valid -> say so
 */
-int	export(t_mslist *list, char **args)
+void	export(t_mslist *list, char **args)
 {
 	int		i;
 	int		flag;
@@ -55,24 +55,21 @@ int	export(t_mslist *list, char **args)
 
 	i = 0;
 	flag = 0;
+	list->status = 0;
 	if (args == (void *)0 || args[0] == (void *)0)
 	{
 		sort_print_env(list->env.envp);
-		return (1);
+		exit(list->status);
 	}
 	while (args[i] != (void *)0)
 	{
 		name = get_name(args[i], &flag);
-		if (name == (void *)0)
-			exit(0);
-		if (check_name(name) == 0)
-			printf("minishell: export: \'%s\': not a valid identifier\n", name);
-		else
+		if (!export_error(args[i], name, list))
 			check_exist_add(list, args[i]);
 		free_ptr(name, &flag);
 		i++;
 	}
-	return (1);
+	exit(list->status);
 }
 
 void	check_exist_add(t_mslist *list, char *str)
@@ -109,6 +106,23 @@ void	update(t_mslist *list, char *str, int i)
 		free(list->env.envp[i]);
 		list->env.envp[i] = ft_strdup(str);
 	}
+}
+
+int	export_error(char *str, char *name, t_mslist *list)
+{
+	if (str[0] == '=')
+	{
+		printf("minishell: export: \'%s\': not a valid identifier", str);
+		list->status = 1;
+		return (1);
+	}
+	if (!check_name(name))
+	{
+		printf("minishell: export: \'%s\': not a valid identifier", name);
+		list->status = 1;
+		return (1);
+	}
+	return (0);
 }
 /*
 ** 1. if name matches the envp
